@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Model weights (large files)
+weight/
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+
+# Datasets (large files)
+dataset/
+*.tar
+*.zip
+*.gz
+
+# FakeShield specific
+FakeShield/weight/
+FakeShield/dataset/
+FakeShield/venv/
+FakeShield/mmcv/
+FakeShield/DTE-FDM/*.egg-info/
+FakeShield/playground/batch_results/
+FakeShield/playground/quantization_results.json
+FakeShield/playground/cross_domain_results.json
+FakeShield/playground/iou_results.json
+FakeShield/playground/mflm_improved_results.json
+
+# Logs and outputs
+*.log
+*.jsonl
+playground/eval_*.json
+playground/*_results.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Paper old version
+paper/
