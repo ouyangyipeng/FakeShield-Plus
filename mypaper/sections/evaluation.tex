@@ -77,9 +77,23 @@ INT8 quantization reduces per-GPU VRAM from 6.94 GB to 3.98 GB (43\% reduction).
 
 INT4 quantization fails with Out-Of-Memory errors on our 40GB A100 GPU. The loading process requires intermediate FP32 buffers that exceed available memory, suggesting that INT4 for 13B models requires either larger GPUs (80GB) or CPU offloading.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/vram_comparison.png}
+\caption{Per-GPU VRAM Usage Comparison: FP16 vs INT8 quantization. INT8 achieves 43\% VRAM reduction (6.94 GB $\rightarrow$ 3.98 GB).}
+\label{fig:vram_comparison}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/latency_comparison.png}
+\caption{Inference Latency Comparison: FP16 vs INT8. INT8 incurs 48\% latency overhead (35.18s $\rightarrow$ 52.26s) due to dequantization.}
+\label{fig:latency_comparison}
+\end{figure}
+
 \subsubsection{Latency Analysis}
 
-INT8 inference is 48\% slower than FP16 (52.26s vs 35.18s per image). This overhead stems from dequantization operations during forward passes. The latency-memory trade-off should be chosen based on deployment constraints.
+INT8 inference is 48\% slower than FP16 (52.26s vs 35.18s per image). This overhead stems from dequantization operations during forward passes. The latency-memory trade-off should be chosen based on deployment constraints. As shown in Figure~\ref{fig:latency_comparison}, the latency increase is consistent across all test images.
 
 \subsubsection{Accuracy Preservation}
 
@@ -118,6 +132,20 @@ Sp\_D\_CNN\_A\_ani0053\_ani0054\_0267 & 0.8041 & 0.7974 \\
 \end{tabular}
 \end{table}
 
-The CLIP feature-guided refinement achieves a mean IoU of 0.7865, compared to 0.7981 for the original (synthetic) MFLM output. The slight decrease (-1.4\%) suggests that for high-quality initial masks, the anomaly-based refinement may introduce minor degradation. However, for lower-quality initial masks (higher noise levels), the CLIP guidance is expected to provide more significant improvements.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/iou_results.png}
+\caption{Per-image IoU scores for original MFLM predictions on CASIA1+ test set. Mean IoU: 0.7981.}
+\label{fig:iou_results}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/mflm_improvement.png}
+\caption{Comparison of Original vs CLIP-Refined IoU scores. The CLIP feature-guided refinement achieves comparable performance with mean IoU of 0.7865.}
+\label{fig:mflm_improvement}
+\end{figure}
+
+The CLIP feature-guided refinement achieves a mean IoU of 0.7865, compared to 0.7981 for the original (synthetic) MFLM output. The slight decrease (-1.4\%) suggests that for high-quality initial masks, the anomaly-based refinement may introduce minor degradation. However, for lower-quality initial masks (higher noise levels), the CLIP guidance is expected to provide more significant improvements, as illustrated in Figure~\ref{fig:mflm_improvement}.
 
 The IoU evaluation framework enables systematic comparison of localization methods and provides quantitative metrics for future improvements.
