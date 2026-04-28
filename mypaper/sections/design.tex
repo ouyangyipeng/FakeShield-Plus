@@ -83,7 +83,7 @@ This fix ensures that the CLIPVisionTower and its image processor are always pro
 
 \subsubsection{Quantization Strategy}
 
-We apply INT8 quantization to DTE-FDM using the bitsandbytes library~\cite{bitsandbytes}. The quantization is applied through the \texttt{load\_in\_8bit=True} flag in \texttt{load\_pretrained\_model}:
+We apply INT8 quantization to DTE-FDM using the bitsandbytes library~\citep{bitsandbytes}. The quantization is applied through the \texttt{load\_in\_8bit=True} flag in \texttt{load\_pretrained\_model}:
 
 \begin{verbatim}
 tokenizer, model, image_processor, context_len = \
@@ -125,7 +125,7 @@ We extend the DTG from 3 to 6 classes by:
 \begin{enumerate}
     \item Expanding the ResNet-50 classification head from 3 to 6 outputs
     \item Initializing new class weights from the AIGC class (most similar to SD\_inpaint) with small random noise for differentiation
-    \item Fine-tuning on the SD\_inpaint dataset~\cite{fakeshield2025}
+    \item Fine-tuning on the SD\_inpaint dataset~\citep{fakeshield2025}
 \end{enumerate}
 
 The extended class taxonomy is:

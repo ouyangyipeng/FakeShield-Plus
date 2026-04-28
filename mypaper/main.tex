@@ -1,39 +1,91 @@
-\documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
+%-----------------------------------------------------------------------------
+% FakeShield++: Enhanced Robustness and Efficiency for Multimodal Image Forgery Detection and Localization
+% Using SIGPLAN Conference Template
+%-----------------------------------------------------------------------------
 
-\usepackage{cite}
-\usepackage{amsmath,amssymb,amsfonts}
+\makeatletter
+\def\input@path{{sigplan/}{algorithms/}}
+\makeatother
+\documentclass[preprint]{sigplanconf}
+
+\usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
-\usepackage{textcomp}
-\usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{balance}
-\usepackage{hyperref}
-
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{natbib}
 
 \begin{document}
 
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{SecAI'26}{October 2026, Salt Lake City, UT, USA}
+\copyrightyear{2026}
+\copyrightdata{978-1-4503-XXXX-X/26/10}
+\copyrightdoi{10.1145/nnnnnnn.nnnnnnn}
+
+\setcopyright{acmlicensed}
+
+\titlebanner{Preprint -- Under Review}
+\preprintfooter{FakeShield++}
+
 \title{FakeShield++: Enhanced Robustness and Efficiency for\\Multimodal Image Forgery Detection and Localization}
 
-\author{\IEEEauthorblockN{Yipeng Ouyang and Hao Liu}
-\IEEEauthorblockA{\textit{Sun Yat-sen University}\\
-Email: ouyyp5@mail2.sysu.edu.cn, liuh525@mail2.sysu.edu.cn}
-}
+\authorinfo{Yipeng Ouyang\thanks{Equal contribution.}}
+           {Sun Yat-sen University}
+           {ouyyp5@mail2.sysu.edu.cn}
+\authorinfo{Hao Liu\thanks{Equal contribution.}}
+           {Sun Yat-sen University}
+           {liuh525@mail2.sysu.edu.cn}
 
 \maketitle
 
+%-----------------------------------------------------------------------------
+% Abstract
+%-----------------------------------------------------------------------------
 \input{sections/abstract}
+
+%-----------------------------------------------------------------------------
+% Introduction
+%-----------------------------------------------------------------------------
 \input{sections/introduction}
+
+%-----------------------------------------------------------------------------
+% Original Paper and Its Weakness
+%-----------------------------------------------------------------------------
 \input{sections/original_paper}
+
+%-----------------------------------------------------------------------------
+% Design
+%-----------------------------------------------------------------------------
 \input{sections/design}
+
+%-----------------------------------------------------------------------------
+% Evaluation
+%-----------------------------------------------------------------------------
 \input{sections/evaluation}
+
+%-----------------------------------------------------------------------------
+% Discussion
+%-----------------------------------------------------------------------------
 \input{sections/discussion}
 
-\balance
-\bibliographystyle{IEEEtran}
+%-----------------------------------------------------------------------------
+% Acknowledgments
+%-----------------------------------------------------------------------------
+\acks
+
+This work was supported by Sun Yat-sen University. We thank the anonymous reviewers for their constructive feedback.
+
+%-----------------------------------------------------------------------------
+% References
+%-----------------------------------------------------------------------------
+\bibliographystyle{abbrvnat}
 \bibliography{references}
 
 \end{document}
