@@ -1,0 +1,166 @@
+\section{Design}
+\label{sec:design}
+
+We present four improvements addressing the weaknesses identified in Section~\ref{sec:original}.
+
+\subsection{Improvement 1: Automatic Path Mapping Module}
+
+\subsubsection{Design}
+
+We introduce an automatic path mapping module (\texttt{fix\_image\_path.py}) that resolves training data paths to local paths at inference time. Given a DTE-FDM output JSONL file containing paths $P = \{p_1, p_2, \dots, p_n\}$ and a local image directory $D$, the module:
+
+\begin{enumerate}
+    \item Extracts the filename $f_i = \text{basename}(p_i)$ for each path
+    \item Searches for $f_i$ recursively in directory $D$
+    \item Replaces $p_i$ with the local path if found, otherwise keeps the original path
+\end{enumerate}
+
+Formally, the resolved path $p'_i$ is:
+\begin{equation}
+p'_i = \begin{cases}
+    \text{find}(f_i, D) & \text{if } \text{find}(f_i, D) \neq \text{None} \\
+    p_i & \text{otherwise}
+\end{cases}
+\end{equation}
+
+The module is integrated into the pipeline via \texttt{run\_pipeline\_improved.sh}, which inserts a path-fixing stage between DTE-FDM and MFLM:
+
+\begin{verbatim}
+# Stage 1: DTE-FDM
+python ./DTE-FDM/llava/serve/cli.py ...
+
+# Stage 1.5: Fix image paths (NEW!)
+python scripts/fix_image_path.py \
+    --input ${DTE_FDM_OUTPUT} \
+    --output ${DTE_FDM_OUTPUT_FIXED} \
+    --local-image-dir ${LOCAL_IMAGE_DIR}
+
+# Stage 2: MFLM (no manual --image-path needed!)
+python ./MFLM/cli_demo.py \
+    --DTE-FDM-output ${DTE_FDM_OUTPUT_FIXED}
+\end{verbatim}
+
+\subsubsection{Benefits}
+
+This approach eliminates the need for manual path specification (\texttt{--image-path} argument), enables seamless cross-environment deployment, and is backward-compatible with existing DTE-FDM outputs.
+
+\subsection{Improvement 2: Robust CLIPVisionTower Loading}
+
+\subsubsection{Design}
+
+We fix the model name matching bug in \texttt{builder.py} by extending the condition to match both LLaVA and DTE-FDM model names:
+
+\begin{verbatim}
+# Original (buggy):
+if 'llava' in model_name.lower():
+
+# Fixed:
+if 'llava' in model_name.lower() or \
+   'dte-fdm' in model_name.lower() or \
+   'dte_fdm' in model_name.lower():
+\end{verbatim}
+
+Additionally, we ensure the vision tower is properly loaded by checking the \texttt{is\_loaded} flag:
+
+\begin{verbatim}
+vision_tower = model.get_vision_tower()
+if not vision_tower.is_loaded:
+    vision_tower.load_model()
+if not hasattr(vision_tower, 'vision_tower') or \
+   vision_tower.vision_tower is None:
+    vision_tower.is_loaded = False
+    vision_tower.load_model()
+model_device = next(model.parameters()).device
+vision_tower.to(device=model_device, dtype=torch.float16)
+image_processor = vision_tower.image_processor
+\end{verbatim}
+
+\subsubsection{Benefits}
+
+This fix ensures that the CLIPVisionTower and its image processor are always properly initialized, regardless of the model name. It prevents the \texttt{NoneType} image processor error that caused inference failures.
+
+\subsection{Improvement 3: INT8 Quantization for DTE-FDM}
+
+\subsubsection{Quantization Strategy}
+
+We apply INT8 quantization to DTE-FDM using the bitsandbytes library~\cite{bitsandbytes}. The quantization is applied through the \texttt{load\_in\_8bit=True} flag in \texttt{load\_pretrained\_model}:
+
+\begin{verbatim}
+tokenizer, model, image_processor, context_len = \
+    load_pretrained_model(
+        model_path, None, model_name,
+        load_8bit=True,
+        device="cuda:0"
+    )
+\end{verbatim}
+
+For INT4 quantization, we use NF4 (Normal Float 4) with double quantization:
+
+\begin{verbatim}
+BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type='nf4'
+)
+\end{verbatim}
+
+\subsubsection{Multi-GPU Device Synchronization}
+
+INT8 quantization with \texttt{device\_map="auto"} distributes model layers across available GPUs, causing device mismatch errors when the vision tower and language model reside on different GPUs. We resolve this by forcing single-GPU execution for quantized inference:
+
+\begin{verbatim}
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+\end{verbatim}
+
+\subsubsection{Compatibility Fixes}
+
+We identified and resolved a version incompatibility between bitsandbytes 0.45.0 and triton 3.6.0. The fix involves downgrading to bitsandbytes 0.41.3.post2 and triton 2.1.0, which are compatible with PyTorch 1.13.0 and CUDA 11.7.
+
+\subsection{Improvement 4: Extended DTG and IoU Evaluation}
+
+\subsubsection{Extended Domain Tag Generator}
+
+We extend the DTG from 3 to 6 classes by:
+\begin{enumerate}
+    \item Expanding the ResNet-50 classification head from 3 to 6 outputs
+    \item Initializing new class weights from the AIGC class (most similar to SD\_inpaint) with small random noise for differentiation
+    \item Fine-tuning on the SD\_inpaint dataset~\cite{fakeshield2025}
+\end{enumerate}
+
+The extended class taxonomy is:
+\begin{enumerate}
+    \item AIGC (original)
+    \item DeepFake (original)
+    \item Photoshop (original)
+    \item SD\_inpaint (new)
+    \item ControlNet (new)
+    \item Midjourney (new)
+\end{enumerate}
+
+\subsubsection{CLIP Feature-Guided Mask Refinement}
+
+We propose a mask refinement module that uses CLIP visual features to compute an anomaly map. The key insight is that tampered regions often exhibit inconsistent CLIP embeddings compared to the rest of the image. The refinement process:
+
+\begin{enumerate}
+    \item Extract CLIP features from intermediate layers (layer -2 for spatial resolution)
+    \item Compute per-patch cosine similarity to the global average feature
+    \item Generate anomaly map: $A(x,y) = 1 - \text{cosine\_sim}(f_{x,y}, f_{\text{global}})$
+    \item Fuse with original MFLM mask: $M_{\text{refined}} = (1-\alpha) M_{\text{orig}} + \alpha A$
+    \item Threshold at 0.5 to obtain binary mask
+\end{enumerate}
+
+\subsubsection{IoU Evaluation Framework}
+
+We implement a systematic IoU evaluation framework (\texttt{evaluate\_iou.py}) that:
+\begin{itemize}
+    \item Loads MFLM predicted masks and ground truth masks
+    \item Computes IoU and F1 scores for each image
+    \item Generates summary statistics (mean, min, max IoU)
+    \item Supports both actual MFLM outputs and synthetic predictions for testing
+\end{itemize}
+
+The IoU metric is defined as:
+\begin{equation}
+\text{IoU} = \frac{|M_{\text{pred}} \cap M_{\text{gt}}|}{|M_{\text{pred}} \cup M_{\text{gt}}|}
+\end{equation}

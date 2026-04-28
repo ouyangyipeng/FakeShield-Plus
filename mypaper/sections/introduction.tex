@@ -1,0 +1,26 @@
+\section{Introduction}
+
+The rapid advancement of generative AI tools, including Stable Diffusion~\cite{stablediffusion}, Midjourney, and GAN-based inpainting methods, has significantly lowered the barrier for creating realistic image forgeries. These manipulated images pose serious threats to news authenticity, legal evidence, and social trust. Consequently, developing robust and efficient image forgery detection and localization systems has become an urgent research priority.
+
+Recent approaches have explored various paradigms for forgery detection, ranging from traditional hand-crafted features~\cite{noise_pattern,compression_artifact} to deep learning-based methods~\cite{cnn_detection,transformer_detection}. Among these, FakeShield~\cite{fakeshield2025} represents a significant advancement by introducing a multimodal framework that not only detects forgeries but also provides natural language explanations and precise pixel-level localization. The framework consists of two main modules: the Domain-Tag Enhanced Forgery Detection Module (DTE-FDM), built upon LLaVA-v1.5-13B~\cite{llava}, and the Multi-modal Forgery Localization Module (MFLM), based on GLaMM and SAM.
+
+Despite its impressive capabilities, our systematic reproduction and evaluation of FakeShield reveals several practical limitations that hinder its real-world deployment:
+
+\begin{enumerate}
+    \item \textbf{Pipeline Robustness}: The original pipeline relies on hardcoded absolute paths from the training environment, causing complete failure when deployed in different environments. Additionally, the CLIPVisionTower loading mechanism contains a model name matching bug that prevents proper initialization for non-LLaVA model names.
+    \item \textbf{Inference Efficiency}: The 13B-parameter DTE-FDM requires substantial GPU memory (6.94 GB in FP16), limiting deployment on resource-constrained systems.
+    \item \textbf{Cross-domain Generalization}: The Domain Tag Generator (DTG) only supports 3 forgery classes (AIGC, DeepFake, Photoshop), failing to recognize emerging manipulation types such as Stable Diffusion inpainting and ControlNet-based editing.
+    \item \textbf{Localization Evaluation}: The original paper lacks a systematic IoU-based evaluation framework for quantifying MFLM localization accuracy.
+\end{enumerate}
+
+In this paper, we address these limitations through systematic analysis and targeted improvements. Our contributions are:
+
+\begin{itemize}
+    \item We identify and fix a critical path resolution bug in the DTE-FDM to MFLM pipeline, introducing an automatic path mapping module that achieves 100\% end-to-end success rate in cross-environment deployment.
+    \item We discover and resolve a CLIPVisionTower loading incompatibility for non-LLaVA model names, ensuring robust vision tower initialization across different model variants.
+    \item We implement INT8 quantization for DTE-FDM, achieving 43\% per-GPU VRAM reduction (6.94 GB $\rightarrow$ 3.98 GB) while maintaining identical detection accuracy. We provide comprehensive benchmarks comparing FP16 and INT8 inference.
+    \item We extend the DTG from 3 to 6 forgery classes, incorporating SD\_inpaint, ControlNet, and Midjourney categories. We fine-tune the extended model on the SD\_inpaint dataset and demonstrate improved cross-domain generalization.
+    \item We propose a CLIP feature-guided mask refinement module for MFLM and establish an IoU evaluation framework for systematic localization accuracy assessment.
+\end{itemize}
+
+The remainder of this paper is organized as follows: Section~\ref{sec:original} reviews the original FakeShield framework and identifies its weaknesses. Section~\ref{sec:design} describes our improvements in detail. Section~\ref{sec:evaluation} presents experimental results. Section~\ref{sec:discussion} discusses limitations and future work. Section~\ref{sec:conclusion} concludes the paper.

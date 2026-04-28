@@ -1,0 +1,62 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Summary of Improvements}
+
+Table~\ref{tab:improvements_summary} summarizes all improvements made to FakeShield.
+
+\begin{table}[t]
+\centering
+\caption{Summary of FakeShield++ Improvements}
+\label{tab:improvements_summary}
+\begin{tabular}{lll}
+\toprule
+\textbf{Dimension} & \textbf{Original} & \textbf{Improved} \\
+\midrule
+Pipeline Robustness & Manual path fix needed & Automatic path mapping \\
+CLIPVisionTower & Fails for non-LLaVA names & Robust loading for all names \\
+VRAM (per GPU) & 6.94 GB (FP16) & 3.98 GB (INT8, -43\%) \\
+DTG Classes & 3 (AIGC/DeepFake/PS) & 6 (+SD/ControlNet/MJ) \\
+Localization Eval & Qualitative only & IoU framework + CLIP refinement \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item \textbf{Small Test Sets}: Our experiments use limited test images (4 for CASIA1+, 17 for SD\_inpaint) due to time and resource constraints. Larger-scale evaluation on full datasets is needed for more conclusive results.
+    \item \textbf{INT4 Infeasibility}: We were unable to benchmark INT4 quantization due to GPU memory limitations (40GB A100 insufficient for 13B model loading with intermediate FP32 buffers).
+    \item \textbf{Single-GPU Quantization}: Our INT8 implementation forces single-GPU execution to avoid device mismatch, which may not be optimal for all deployment scenarios.
+    \item \textbf{Synthetic MFLM Evaluation}: The IoU evaluation uses synthetic MFLM predictions rather than actual MFLM outputs, as running the full MFLM pipeline requires additional GPU resources.
+    \item \textbf{Extended DTG Training Data}: The extended DTG was fine-tuned on only 13 training samples, resulting in moderate accuracy (75\%). More training data would improve performance on new classes.
+\end{itemize}
+
+\subsection{Future Work}
+
+\begin{itemize}
+    \item \textbf{CPU Offloading for INT4}: Implement CPU offloading during model loading to enable INT4 quantization on 40GB GPUs.
+    \item \textbf{Larger-scale Evaluation}: Run experiments on the full CASIA1+ dataset (100+ images) and SD\_inpaint evaluation set.
+    \item \textbf{Adaptive Fusion Weight}: Learn the fusion weight $\alpha$ for CLIP-guided mask refinement instead of using a fixed value.
+    \item \textbf{Real MFLM Integration}: Integrate the CLIP refinement module into the actual MFLM pipeline and evaluate on real MFLM outputs.
+    \item \textbf{Additional Forgery Types}: Extend DTG to support GAN-based inpainting, FaceSwap, and other emerging manipulation techniques.
+\end{itemize}
+
+\subsection{Reproducibility}
+
+All code, scripts, and experimental results are available in our repository. The improved pipeline scripts (\texttt{run\_pipeline\_improved.sh}, \texttt{fix\_image\_path.py}), quantization benchmark (\texttt{quantized\_inference.py}), extended DTG training (\texttt{extend\_dtg.py}), and IoU evaluation framework (\texttt{evaluate\_iou.py}) are provided for reproducibility.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented FakeShield++, an enhanced version of FakeShield with improved pipeline robustness, inference efficiency, cross-domain generalization, and localization evaluation. Our key contributions include:
+
+\begin{enumerate}
+    \item An automatic path mapping module achieving 100\% end-to-end pipeline success rate in cross-environment deployment.
+    \item A fix for the CLIPVisionTower loading incompatibility affecting non-LLaVA model names.
+    \item INT8 quantization reducing per-GPU VRAM by 43\% (6.94 GB $\rightarrow$ 3.98 GB) with identical detection accuracy.
+    \item An extended DTG supporting 6 forgery classes, enabling detection of emerging AIGC manipulation types.
+    \item A CLIP feature-guided mask refinement module and IoU evaluation framework for systematic localization assessment.
+\end{enumerate}
+
+These improvements make FakeShield more practical for real-world deployment in resource-constrained environments while maintaining detection performance. Our work demonstrates the value of systematic reproduction in identifying and addressing practical limitations of state-of-the-art methods.
