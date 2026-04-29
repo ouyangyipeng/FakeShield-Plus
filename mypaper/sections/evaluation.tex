@@ -7,7 +7,7 @@ All experiments are conducted on a server with 4$\times$NVIDIA A100-PCIE-40GB GP
 
 \subsection{Pipeline Robustness}
 
-Table~\ref{tab:pipeline_comparison} compares the original and improved pipelines on 4 CASIA1+ test images. Both pipelines achieve 100\% success rate after applying the CLIPVisionTower loading fix. The key difference is that the improved pipeline requires no manual \texttt{--image-path} specification, making it robust to environment changes. Without the CLIPVisionTower fix, both pipelines would fail with \texttt{'CLIPVisionTower' object has no attribute 'vision\_tower'} errors.
+Table~\ref{tab:pipeline_comparison} compares the original and improved pipelines on 4 CASIA1+ test images. Both pipelines achieve 100\% success rate after applying the CLIPVisionTower loading fix. The key difference is that the improved pipeline requires no manual image path specification, making it robust to environment changes. Without the CLIPVisionTower fix, both pipelines would fail with attribute errors when accessing the vision tower.
 
 \begin{table}[t]
 \centering
