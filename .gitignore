@@ -64,6 +64,8 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.pdf
 
 # Paper old version
 paper/
+mypaper/IEEEtran.cls
