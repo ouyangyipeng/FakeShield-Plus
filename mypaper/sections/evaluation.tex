@@ -13,16 +13,16 @@ Table~\ref{tab:pipeline_comparison} compares the original and improved pipelines
 \centering
 \caption{Pipeline End-to-End Comparison on CASIA1+}
 \label{tab:pipeline_comparison}
-\begin{tabular}{lcc}
+\begin{tabular}{@{}p{2.2cm}cc@{}}
 \toprule
-\textbf{Image} & \textbf{Original Pipeline} & \textbf{Improved Pipeline} \\
+\textbf{Image ID} & \textbf{Original} & \textbf{Improved} \\
 \midrule
-Sp\_D\_CND\_A\_sec0056\_sec0015\_0282 & SUCCESS & SUCCESS \\
-Sp\_D\_CND\_A\_pla0005\_pla0023\_0281 & SUCCESS & SUCCESS \\
-Sp\_D\_CNN\_A\_ani0049\_ani0084\_0266 & SUCCESS & SUCCESS \\
-Sp\_D\_CNN\_A\_ani0053\_ani0054\_0267 & AUTHENTIC & AUTHENTIC \\
+CND-sec-0282 & SUCCESS & SUCCESS \\
+CND-pla-0281 & SUCCESS & SUCCESS \\
+CNN-ani-0266 & SUCCESS & SUCCESS \\
+CNN-ani-0267 & AUTHENTIC & AUTHENTIC \\
 \midrule
-\textbf{Success Rate} & \textbf{100\% (4/4)} & \textbf{100\% (4/4)} \\
+\textbf{Success Rate} & \textbf{100\%} & \textbf{100\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -35,16 +35,15 @@ Table~\ref{tab:quantization_benchmark} presents the quantization benchmark resul
 \centering
 \caption{Quantization Benchmark Results}
 \label{tab:quantization_benchmark}
-\begin{tabular}{lccc}
+\small
+\begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Metric} & \textbf{FP16} & \textbf{INT8} & \textbf{INT4} \\
 \midrule
 Per-GPU VRAM (GB) & 6.94 & 3.98 & OOM \\
-Total VRAM (GB) & 6.94 & 13.36 & - \\
-Avg Latency (s) & 35.18 & 52.26 & - \\
-Success Rate & 4/4 & 4/4 & - \\
-Fake Detected & 3 & 3 & - \\
-Real Detected & 1 & 1 & - \\
+Total VRAM (GB) & 6.94 & 13.36 & -- \\
+Avg Latency (s/img) & 35.18 & 52.26 & -- \\
+Detection Accuracy & 100\% & 100\% & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -93,14 +92,14 @@ Table~\ref{tab:iou_results} presents IoU evaluation results using synthetic MFLM
 \centering
 \caption{Localization IoU Evaluation Results}
 \label{tab:iou_results}
-\begin{tabular}{lcc}
+\begin{tabular}{@{}p{2.2cm}cc@{}}
 \toprule
-\textbf{Image} & \textbf{Original IoU} & \textbf{CLIP-Refined IoU} \\
+\textbf{Image ID} & \textbf{Original} & \textbf{CLIP-Refined} \\
 \midrule
-Sp\_D\_CND\_A\_pla0005\_pla0023\_0281 & 0.7953 & 0.7859 \\
-Sp\_D\_CND\_A\_sec0056\_sec0015\_0282 & 0.7948 & 0.7920 \\
-Sp\_D\_CNN\_A\_ani0049\_ani0084\_0266 & 0.7972 & 0.7632 \\
-Sp\_D\_CNN\_A\_ani0053\_ani0054\_0267 & 0.8041 & 0.7974 \\
+CND-pla-0281 & 0.7953 & 0.7859 \\
+CND-sec-0282 & 0.7948 & 0.7920 \\
+CNN-ani-0266 & 0.7972 & 0.7632 \\
+CNN-ani-0267 & 0.8041 & 0.7974 \\
 \midrule
 \textbf{Mean} & \textbf{0.7981} & \textbf{0.7865} \\
 \bottomrule
