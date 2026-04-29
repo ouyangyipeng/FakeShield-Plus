@@ -17,6 +17,13 @@ p'_i = \begin{cases}
 
 The module is integrated into the pipeline via \texttt{run\_pipeline\_improved.sh}, which inserts a path-fixing stage between DTE-FDM and MFLM. This approach eliminates the need for manual \texttt{--image-path} specification, enables seamless cross-environment deployment, and is backward-compatible with existing DTE-FDM outputs.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/Fig2_auto_path_mapping.png}
+\caption{Automatic path mapping workflow. The module extracts filenames from DTE-FDM output paths, searches the local directory, and replaces invalid paths with resolved local paths before passing to MFLM.}
+\label{fig:auto_path_mapping}
+\end{figure}
+
 \paragraph{CLIPVisionTower Loading Fix.} The \texttt{load\_pretrained\_model} function in \texttt{builder.py} contains a model name matching bug that skips vision tower initialization for DTE-FDM. The original condition checks only for ``llava'' in the model name, which fails to match DTE-FDM. We extend the condition to also match ``dte-fdm'' and ``dte\_fdm''. Additionally, we add a safety check that verifies the vision tower is properly loaded by inspecting the \texttt{is\_loaded} flag and the \texttt{vision\_tower} attribute. If either check fails, we explicitly call \texttt{load\_model()} and synchronize the device placement with the main model. This fix ensures that the CLIPVisionTower and its image processor are always properly initialized, regardless of the model name.
 
 \subsection{INT8 Quantization for Memory-Efficient Inference}
@@ -29,9 +36,23 @@ The 13B-parameter DTE-FDM requires 6.94 GB of GPU VRAM in FP16 mode, limiting de
 
 \subsection{Extended Domain Tag Generator}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/Fig4_ext_dom_tag_gen.png}
+\caption{Extended Domain Tag Generator architecture. The ResNet-50 classification head is expanded from 3 to 6 outputs, with new class weights initialized from the AIGC class plus small random noise for differentiation.}
+\label{fig:extended_dtg}
+\end{figure}
+
 The original DTG classifier supports only three forgery categories (AIGC, DeepFake, Photoshop), which fails to capture emerging manipulation techniques such as Stable Diffusion inpainting, ControlNet-based manipulation, and Midjourney-generated content. We extend the DTG from 3 to 6 classes by expanding the ResNet-50 classification head from 3 to 6 outputs. The new class weights are initialized from the AIGC class (most similar to SD\_inpaint) with small random noise ($\mathcal{N}(0, 0.01)$) for differentiation, and the model is fine-tuned on the SD\_inpaint dataset~\citep{fakeshield2025}. The extended taxonomy includes: AIGC, DeepFake, Photoshop (original classes), and SD\_inpaint, ControlNet, Midjourney (new classes).
 
 \subsection{CLIP Feature-Guided Mask Refinement and IoU Evaluation}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/Fig5_clip_feat.png}
+\caption{CLIP feature-guided mask refinement pipeline. CLIP features from intermediate layers are used to compute an anomaly map based on per-patch cosine similarity to the global average. The anomaly map is fused with the original MFLM mask to produce a refined segmentation.}
+\label{fig:clip_refinement}
+\end{figure}
 
 \paragraph{CLIP-Guided Refinement.} We propose a mask refinement module that uses CLIP visual features to compute an anomaly map. The key insight is that tampered regions often exhibit inconsistent CLIP embeddings compared to the rest of the image. We extract CLIP features from intermediate layers (layer -2 for spatial resolution), compute per-patch cosine similarity to the global average feature, and generate an anomaly map $A(x,y) = 1 - \text{cosine\_sim}(f_{x,y}, f_{\text{global}})$. The anomaly map is fused with the original MFLM mask: $M_{\text{refined}} = (1-\alpha) M_{\text{orig}} + \alpha A$, and thresholded at 0.5 to obtain the final binary mask.
 

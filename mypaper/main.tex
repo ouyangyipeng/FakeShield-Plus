@@ -51,6 +51,16 @@
 \maketitle
 
 %-----------------------------------------------------------------------------
+% Teaser Figure (full width, placed after title, before abstract)
+%-----------------------------------------------------------------------------
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/Fig1_FakeShield_Sys.png}
+\caption{FakeShield++ system architecture overview. The framework consists of two main modules: DTE-FDM (detection with LLaVA-v1.5-13B) and MFLM (localization with GLaMM+SAM). Our four improvements (A--D) are integrated into the pipeline to enhance robustness, efficiency, generalization, and localization accuracy.}
+\label{fig:system_architecture}
+\end{figure*}
+
+%-----------------------------------------------------------------------------
 % Abstract
 %-----------------------------------------------------------------------------
 \input{sections/abstract}
