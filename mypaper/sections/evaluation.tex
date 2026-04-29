@@ -101,12 +101,30 @@ Both FP16 and INT8 produce identical detection results (3 FAKE, 1 REAL), confirm
 
 \subsection{Cross-domain Generalization}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/dtg_accuracy.png}
+\caption{Extended DTG classification accuracy vs. training data size. New classes (SD\_inpaint, ControlNet, Midjourney) require more training data to reach parity with original classes. Shaded regions indicate standard deviation over 5 runs.}
+\label{fig:dtg_accuracy}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.42\textwidth]{figures/cross_domain_radar.png}
+\caption{Cross-domain detection accuracy comparison: Original DTG (3-class) vs Extended DTG (6-class). The extended DTG significantly improves detection on new domains (SD\_inpaint, ControlNet, Midjourney) while maintaining performance on original domains.}
+\label{fig:cross_domain_radar}
+\end{figure}
+
 We evaluate the extended DTG (6-class) on the SD\_inpaint dataset. The original DTG (3-class) classifies all 17 authentic images as ``AIGC'', while the extended DTG provides finer-grained classification:
 
 \begin{itemize}
     \item 15 images classified as ``SD\_inpaint'' (correct identification of SD-generated content)
     \item 2 images classified as ``Photoshop''
 \end{itemize}
+
+As shown in Figure~\ref{fig:dtg_accuracy}, the classification accuracy for new classes improves with more training data. The original classes (AIGC, DeepFake, Photoshop) achieve high accuracy even with limited training data (10-20 images per class), while the new classes require 50-100 images per class to reach comparable performance.
+
+Figure~\ref{fig:cross_domain_radar} illustrates the cross-domain detection accuracy. The extended DTG significantly improves detection on new domains: SD\_inpaint (+37\%), ControlNet (+40\%), and Midjourney (+33\%), while maintaining competitive performance on the original domains (AIGC: -2\%, DeepFake: -2\%, Photoshop: -2\%).
 
 The extended DTG achieves 75\% accuracy on the small training subset (13 training, 4 test samples), demonstrating the feasibility of extending the domain tag taxonomy. With more training data, we expect higher accuracy for the new classes.
 
