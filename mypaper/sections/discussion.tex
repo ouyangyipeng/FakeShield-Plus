@@ -9,15 +9,16 @@ Table~\ref{tab:improvements_summary} summarizes all improvements made to FakeShi
 \centering
 \caption{Summary of FakeShield++ Improvements}
 \label{tab:improvements_summary}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{@{}>{\centering\arraybackslash}p{2cm}>{\centering\arraybackslash}p{2.5cm}>{\centering\arraybackslash}p{2.8cm}@{}}
 \toprule
 \textbf{Dimension} & \textbf{Original} & \textbf{Improved} \\
 \midrule
-Pipeline Robustness & Manual path fix needed & Automatic path mapping \\
-CLIPVisionTower & Fails for non-LLaVA names & Robust loading for all names \\
-VRAM (per GPU) & 6.94 GB (FP16) & 3.98 GB (INT8, -43\%) \\
-DTG Classes & 3 (AIGC/DeepFake/PS) & 6 (+SD/ControlNet/MJ) \\
-Localization Eval & Qualitative only & IoU framework + CLIP refinement \\
+Pipeline\newline Robustness & Manual path\newline fix needed & Automatic path\newline mapping \\
+CLIPVisionTower & Fails for non-\newline LLaVA names & Robust loading\newline for all names \\
+VRAM\newline (per GPU) & 6.94 GB\newline (FP16) & 3.98 GB\newline (INT8, -43\%) \\
+DTG Classes & 3 (AIGC/\newline DeepFake/PS) & 6 (+SD/\newline ControlNet/MJ) \\
+Localization\newline Eval & Qualitative\newline only & IoU framework +\newline CLIP refinement \\
 \bottomrule
 \end{tabular}
 \end{table}

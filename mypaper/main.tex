@@ -12,12 +12,16 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{array}
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{xcolor}
 \usepackage{subfigure}
 \usepackage{natbib}
 \usepackage[hyphens]{url}
+\usepackage{cuted}
+\usepackage{caption}
+\usepackage{float}
 
 % Allow line breaks in \texttt for long paths/code
 \newcommand{\pathurl}[1]{\url{#1}}
@@ -29,14 +33,14 @@
 \setlength{\pdfpageheight}{\paperheight}
 \setlength{\pdfpagewidth}{\paperwidth}
 
-\conferenceinfo{SecAI'26}{October 2026, Salt Lake City, UT, USA}
-\copyrightyear{2026}
-\copyrightdata{978-1-4503-XXXX-X/26/10}
-\copyrightdoi{10.1145/nnnnnnn.nnnnnnn}
+% \conferenceinfo{SecAI'26}{October 2026, Salt Lake City, UT, USA}
+% \copyrightyear{2026}
+% \copyrightdata{978-1-4503-XXXX-X/26/10}
+% \copyrightdoi{10.1145/nnnnnnn.nnnnnnn}
 
-\setcopyright{acmlicensed}
+% \setcopyright{acmlicensed}
 
-\titlebanner{Preprint -- Under Review}
+% \titlebanner{Preprint -- Under Review}
 \preprintfooter{FakeShield++}
 
 \title{FakeShield++: Enhanced Robustness and Efficiency for\\Multimodal Image Forgery Detection and Localization}
@@ -48,17 +52,22 @@
            {Sun Yat-sen University}
            {liuh525@mail2.sysu.edu.cn}
 
-\maketitle
+\makeatletter
+\let\@oldmaketitle\@maketitle
+\renewcommand{\@maketitle}{
+    \@oldmaketitle
+    \vspace{-4.5em}
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{figures/Fig1_FakeShield_Sys.png}
+        \captionof{figure}{FakeShield++ system architecture overview. The framework consists of two main modules: DTE-FDM (detection with LLaVA-v1.5-13B) and MFLM (localization with GLaMM+SAM). Our four improvements (A--D) are integrated into the pipeline to enhance robustness, efficiency, generalization, and localization accuracy.}
+        \label{fig:system_architecture}
+    \end{center}
+    \vspace{1em}
+}
+\def\@copyrightspace{}
+\makeatother
 
-%-----------------------------------------------------------------------------
-% Teaser Figure (full width, placed after title, before abstract)
-%-----------------------------------------------------------------------------
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/Fig1_FakeShield_Sys.png}
-\caption{FakeShield++ system architecture overview. The framework consists of two main modules: DTE-FDM (detection with LLaVA-v1.5-13B) and MFLM (localization with GLaMM+SAM). Our four improvements (A--D) are integrated into the pipeline to enhance robustness, efficiency, generalization, and localization accuracy.}
-\label{fig:system_architecture}
-\end{figure*}
+\maketitle
 
 %-----------------------------------------------------------------------------
 % Abstract
@@ -89,13 +98,6 @@
 % Discussion
 %-----------------------------------------------------------------------------
 \input{sections/discussion}
-
-%-----------------------------------------------------------------------------
-% Acknowledgments
-%-----------------------------------------------------------------------------
-\acks
-
-This work was supported by Sun Yat-sen University. We thank the anonymous reviewers for their constructive feedback.
 
 %-----------------------------------------------------------------------------
 % References

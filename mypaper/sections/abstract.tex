@@ -2,6 +2,5 @@
 Image forgery detection and localization have become critical challenges in the era of generative AI. FakeShield, a recent multimodal framework combining detection, explanation, and localization, demonstrates promising results but exhibits practical limitations in robustness, efficiency, and generalization. In this paper, we systematically analyze and improve FakeShield along four key dimensions: (1) \textbf{Pipeline robustness}---we identify and fix a critical path resolution bug and a CLIPVisionTower loading incompatibility, achieving 100\% end-to-end success rate in cross-environment deployment; (2) \textbf{Inference efficiency}---we implement INT8 quantization, reducing per-GPU VRAM usage by 43\% (from 6.94 GB to 3.98 GB) while maintaining identical detection accuracy; (3) \textbf{Cross-domain generalization}---we extend the Domain Tag Generator (DTG) from 3 to 6 forgery classes, enabling detection of emerging AIGC manipulation types including Stable Diffusion inpainting; (4) \textbf{Localization accuracy}---we propose a CLIP feature-guided mask refinement module and establish an IoU evaluation framework. Extensive experiments on CASIA1+ and SD\_inpaint datasets validate our improvements. Our enhanced framework, FakeShield++, achieves more robust and efficient deployment without sacrificing detection performance.
 \end{abstract}
 
-\begin{IEEEkeywords}
+\keywords
 Image forgery detection, multimodal learning, model quantization, pipeline robustness, LLaVA, cross-domain generalization
-\end{IEEEkeywords}

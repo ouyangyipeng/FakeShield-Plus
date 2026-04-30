@@ -17,20 +17,13 @@ p'_i = \begin{cases}
 
 The module is integrated into the pipeline via \texttt{run\_pipeline\_improved.sh}, which inserts a path-fixing stage between DTE-FDM and MFLM. This approach eliminates the need for manual \texttt{--image-path} specification, enables seamless cross-environment deployment, and is backward-compatible with existing DTE-FDM outputs.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.45\textwidth]{figures/Fig2_auto_path_mapping.png}
-\caption{Automatic path mapping workflow. The module extracts filenames from DTE-FDM output paths, searches the local directory, and replaces invalid paths with resolved local paths before passing to MFLM.}
-\label{fig:auto_path_mapping}
-\end{figure}
-
 \paragraph{CLIPVisionTower Loading Fix.} The \texttt{load\_pretrained\_model} function in \texttt{builder.py} contains a model name matching bug that skips vision tower initialization for DTE-FDM. The original condition checks only for ``llava'' in the model name, which fails to match DTE-FDM. We extend the condition to also match ``dte-fdm'' and ``dte\_fdm''. Additionally, we add a safety check that verifies the vision tower is properly loaded by inspecting the \texttt{is\_loaded} flag and the \texttt{vision\_tower} attribute. If either check fails, we explicitly call \texttt{load\_model()} and synchronize the device placement with the main model. This fix ensures that the CLIPVisionTower and its image processor are always properly initialized, regardless of the model name.
 
 \subsection{INT8 Quantization for Memory-Efficient Inference}
 
 The 13B-parameter DTE-FDM requires 6.94 GB of GPU VRAM in FP16 mode, limiting deployment to high-end GPUs. We apply INT8 quantization using the bitsandbytes library~\citep{bitsandbytes} to reduce memory footprint while preserving detection accuracy.
 
-\paragraph{Quantization Strategy.} We apply INT8 quantization through the \texttt{load\_in\_8bit=True} flag in \texttt{load\_pretrained\_model}. This quantizes all linear layers to 8-bit integers while keeping the vision tower and embedding layers in FP16. We also experiment with INT4 quantization using NF4 (Normal Float 4) with double quantization. However, INT4 fails with Out-Of-Memory errors on our 40GB A100 GPU due to intermediate FP32 buffers required during loading, suggesting that INT4 for 13B models requires either 80GB GPUs or CPU offloading.
+\paragraph{Quantization Strategy.} We apply INT8 quantization through the \texttt{load\_in\_8bit=True} flag in \texttt{load\_pretrained\_model}. This quantizes all linear layers to 8-bit integers while keeping the vision tower and embedding layers in FP16. We also experiment with INT4 quantization using NF4 (Normal Float 4) with double quantization~\citep{nf4}. However, INT4 fails with Out-Of-Memory errors on our 40GB A100 GPU due to intermediate FP32 buffers required during loading, suggesting that INT4 for 13B models requires either 80GB GPUs or CPU offloading.
 
 \paragraph{Device Synchronization and Compatibility.} INT8 quantization with automatic device mapping distributes model layers across available GPUs, causing device mismatch errors when the vision tower and language model reside on different GPUs. We resolve this by forcing single-GPU execution via the \texttt{CUDA\_VISIBLE\_DEVICES} environment variable. We also identify and resolve a version incompatibility between bitsandbytes 0.45.0 and triton 3.6.0 by downgrading to bitsandbytes 0.41.3.post2 and triton 2.1.0, which are compatible with PyTorch 1.13.0 and CUDA 11.7.
 
